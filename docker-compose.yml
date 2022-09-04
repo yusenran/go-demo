@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  frontend:
+    build:
+      context: ./containers/vite
+    container_name: frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app/frontend:cached
+    environment:
+      - HOST=0.0.0.0
+      - CHOKIDAR_USERPOLLING=true
+    tty: true
+    ports:
+      # - 3000:3000
+      - 8000:8000
+    # expose:
+    #   - 3000
+    command: sh -c "cd /app/frontend && yarn dev"
