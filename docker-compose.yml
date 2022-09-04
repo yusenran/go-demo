@@ -17,6 +17,8 @@ services:
     # expose:
     #   - 3000
     command: sh -c "cd /app/frontend && yarn dev"
+    depends_on:
+      - backend
   backend:
     build:
       context: .
