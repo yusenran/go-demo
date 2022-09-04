@@ -17,3 +17,17 @@ services:
     # expose:
     #   - 3000
     command: sh -c "cd /app/frontend && yarn dev"
+  backend:
+    build:
+      context: .
+      dockerfile: ./containers/golang/Dockerfile
+    container_name: backend
+    working_dir: /app
+    ports:
+      - 3000:3000
+      # - 8000:8000
+    # expose:
+    #   - 8000
+    tty: true
+    volumes:
+      - ./backend:/app/backend:cached
