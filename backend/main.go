@@ -12,6 +12,6 @@ func main() {
 }
 
 func echoHello(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8000")
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8000")
 	fmt.Fprintf(w, "<h1>Hello World</h1>")
 }
