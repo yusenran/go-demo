@@ -1,6 +1,6 @@
 
 import axios from "axios";
-import { Box, Grid, Slider, Stack } from '@mui/material'
+import { Box, Button, Grid, Slider, Stack, TextField } from '@mui/material'
 import { useState } from 'react'
 import { Canvas } from 'react-three-fiber'
 
@@ -65,12 +65,37 @@ function App() {
     "RightUpperLeg": {x: 0.0, y: 0.0, z: 0.0}
   }
 
+  const [isInRoom, setIsInRoom] = useState<boolean>(false)
+  const [roomButton, setRoomButton] = useState<string>("Join Room");
+
   const [position, setPosition] = useState<Position2D>(defaultPosition)
   const [bones, setBones] = useState<SimpleBones>(defaultBones);
 
   return (
     <Stack spacing={3}>
       <Grid container spacing={3}>
+        <Grid item xs={3}>
+          <TextField
+            id="user-name"
+            label="Your name"
+            variant="outlined"
+            disabled={isInRoom}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <Button
+            variant="contained"
+            onClick={() => {
+              if(!isInRoom) {
+                setIsInRoom(true)
+                setRoomButton("Exit Room")
+              } else {
+                setIsInRoom(false)
+                setRoomButton("Join Room")
+              }
+             }}
+          >{roomButton}</Button>
+        </Grid>
         <Grid item xs={6}>
           <Slider
             size="small"
@@ -144,7 +169,7 @@ function App() {
           </Stack>
         </Grid>
       </Grid>
-      <Box sx={{ width:500, height: 500}}>
+      <Box sx={{ width:1000, height: 500}}>
         <Canvas>
           <VRMModel position={position} bones={bones} />
           <CameraControl />
