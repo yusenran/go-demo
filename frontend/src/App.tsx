@@ -1,8 +1,13 @@
 
 import axios from "axios";
-import {useEffect, useState } from 'react'
+import { Box, Grid, Slider, Stack } from '@mui/material'
+import { useState } from 'react'
+import { Canvas } from 'react-three-fiber'
 
-import reactLogo from './assets/react.svg'
+import CameraControl from './utils/CameraControl'
+import {Position2D, SimpleBones} from './utils/SimpleBones'
+import VRMModel from './components/VRMModel'
+
 import './App.css'
 
 type Hello = {
@@ -42,44 +47,113 @@ async function postHello(hello: Hello) : Promise<Hello> {
   }
 }
 
-function App() {
-  const [count, setCount] = useState(0)
-  const [hello, setHello] = useState({greeting: "", content: "", count: 0})
+function numToRad(num: number | number[]): number {
+  if( typeof num === "number") {
+    return num * Math.PI / 50.0
+  } else {
+    return 0
+  }
+}
 
-  useEffect( () => {
-    const f = async () => {
-        const new_hello = {greeting: "Hello", content: "World", count: count}
-        const res_post = await postHello(new_hello)
-        // const res_get = await getHello()
-        console.log(res_post)
-        setHello(res_post)
-    }
-    f()
-  }),[count]
+function App() {
+  const defaultPosition: Position2D = {x: 0, y: 0}
+  const defaultBones: SimpleBones = {
+    "LeftShoulder": {x: 0.0, y: 0.0, z: 0.0},
+    "LeftUpperLeg": {x: 0.0, y: 0.0, z: 0.0},
+    "Neck": {x: 0.0, y: 0.0, z: 0.0},
+    "RightShoulder": {x: 0.0, y: 0.0, z: 0.0},
+    "RightUpperLeg": {x: 0.0, y: 0.0, z: 0.0}
+  }
+
+  const [position, setPosition] = useState<Position2D>(defaultPosition)
+  const [bones, setBones] = useState<SimpleBones>(defaultBones);
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count} response is {hello.count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
+    <Stack spacing={3}>
+      <Grid container spacing={3}>
+        <Grid item xs={6}>
+          <Slider
+            size="small"
+            defaultValue={0}
+            aria-label="Small"
+            valueLabelDisplay="auto"
+            onChange={(e,v) => setPosition( {x: numToRad(v), y: position.y} )}
+          />
+          position x
+        </Grid>
+        <Grid item xs={6}>
+          <Slider
+            size="small"
+            defaultValue={0}
+            aria-label="Small"
+            valueLabelDisplay="auto"
+            onChange={(e,v) => setPosition( {x: position.x, y: numToRad(v)} )}
+          />
+          position y
+        </Grid>
+        <Grid item xs={4}>
+          <Stack spacing={3}>
+            <Slider
+              size="small"
+              defaultValue={100}
+              aria-label="Small"
+              valueLabelDisplay="auto"
+              onChange={(e,v) => setBones({...bones, "LeftShoulder": {x: 0.0, y: 0.0, z: numToRad(v)}})}
+            />
+            LeftShoulder
+            <Slider
+              size="small"
+              defaultValue={100}
+              aria-label="Small"
+              valueLabelDisplay="auto"
+              onChange={(e,v) => setBones({...bones, "LeftUpperLeg": {x: 0.0, y: 0.0, z: numToRad(v)}})}
+            />
+            LeftUpperLeg
+          </Stack>
+        </Grid>
+        <Grid item xs={4}>
+          <Stack spacing={3}>
+            <Slider
+              size="small"
+              defaultValue={0}
+              aria-label="Small"
+              valueLabelDisplay="auto"
+              onChange={(e,v) => setBones({...bones, "Neck": {x: 0.0, y: numToRad(v), z: 0.0}})}
+            />
+            Neck
+          </Stack>
+        </Grid>
+        <Grid item xs={4}>
+          <Stack spacing={3}>
+            <Slider
+              size="small"
+              defaultValue={0}
+              aria-label="Small"
+              valueLabelDisplay="auto"
+              onChange={(e,v) => setBones({...bones, "RightShoulder": {x: 0.0, y: 0.0, z: numToRad(v)}})}
+            />
+            RightShoulder
+            <Slider
+              size="small"
+              defaultValue={0}
+              aria-label="Small"
+              valueLabelDisplay="auto"
+              onChange={(e,v) => setBones({...bones, "RightUpperLeg": {x: 0.0, y: 0.0, z: numToRad(v)}})}
+            />
+            RightUpperLeg
+          </Stack>
+        </Grid>
+      </Grid>
+      <Box sx={{ width:500, height: 500}}>
+        <Canvas>
+          <VRMModel position={position} bones={bones} />
+          <CameraControl />
+          <directionalLight position={[1, 1, 1]} />
+          <gridHelper />
+        </Canvas>
+      </Box>
+
+    </Stack>
   )
 }
 
