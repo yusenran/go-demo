@@ -4,20 +4,30 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { VRM, VRMUtils, VRMSchema, GLTFNode } from '@pixiv/three-vrm'
 
 import {SimpleBones, Position2D} from './SimpleBones'
+import {syncRoom} from './SyncRoom'
 
-interface VRMAssetProps {
-  url: string
+export interface VRMAvatarProps {
+  name: string
   position: Position2D
-  myBones: SimpleBones
+  bones: SimpleBones
+}
+
+export interface VRMAssetProps {
+  url: string
+  avatarProps: VRMAvatarProps
+  inRoom: boolean
 }
 
 type BoneStore = { [part: string]: GLTFNode | null | undefined };
 
-export default function VRMAsset({ url, position , myBones={
-} }: VRMAssetProps) {
+export default function VRMAsset({ avatarProps, url, inRoom=false }: VRMAssetProps) {
   const { scene, camera } = useThree()
   const gltf = useLoader(GLTFLoader, url)
   const avatar = useRef<VRM>()
+
+  // TODO 後で消す
+  const position = avatarProps.position
+  const myBones = avatarProps.bones
 
   const [boneStore, setBones] = useState<BoneStore>({})
 
@@ -48,6 +58,11 @@ export default function VRMAsset({ url, position , myBones={
 
   useFrame( ({clock}, delta) => {
     gltf.scene.position.set(position.x, 0, position.y)
+
+    if( inRoom ) {
+      syncRoom(avatarProps)
+    }
+
     if(avatar.current) {
       avatar.current.update(delta)
     }

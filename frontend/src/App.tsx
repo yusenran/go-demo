@@ -1,51 +1,15 @@
 
-import axios from "axios";
 import { Box, Button, Grid, Slider, Stack, TextField } from '@mui/material'
 import { useState } from 'react'
 import { Canvas } from 'react-three-fiber'
 
 import CameraControl from './utils/CameraControl'
 import {Position2D, SimpleBones} from './utils/SimpleBones'
+import { VRMAvatarProps } from './utils/VRMAsset'
 import VRMModel from './components/VRMModel'
 
 import './App.css'
 
-type Hello = {
-  greeting: string;
-  content: string;
-  count: number;
-}
-
-async function getHello() : Promise<Hello> {
-  try {
-    const response = await axios.get<Hello>("http://localhost:3000/hello")
-    return response.data
-  } catch (error) {
-    console.log("get error")
-    console.log(error)
-    return {greeting: "", content: "", count: 0}
-  }
-}
-
-async function postHello(hello: Hello) : Promise<Hello> {
-  try {
-    const config = {
-      headers: {
-        'Content-Type': 'text/plain',
-      }
-    }
-    const response = await axios.post<Hello>(
-      "http://localhost:3000/hello"
-      , JSON.stringify(hello)
-      , config )
-    // console.log(response)
-    return response.data
-  } catch (error) {
-    console.log("post error")
-    console.log(error)
-    return {greeting: "", content: "", count: 0}
-  }
-}
 
 function numToRad(num: number | number[]): number {
   if( typeof num === "number") {
@@ -171,7 +135,11 @@ function App() {
       </Grid>
       <Box sx={{ width:1000, height: 500}}>
         <Canvas>
-          <VRMModel position={position} bones={bones} />
+          <VRMModel
+            avatarProps={ { name:"a", position:position, bones: bones} }
+            inRoom={isInRoom}
+            url='./white_w_glass.vrm'
+          />
           <CameraControl />
           <directionalLight position={[1, 1, 1]} />
           <gridHelper />
