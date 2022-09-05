@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { Canvas } from 'react-three-fiber'
 
 import CameraControl from './utils/CameraControl'
-import {SimpleBones} from './utils/SimpleBones'
+import {Position2D, SimpleBones} from './utils/SimpleBones'
 import VRMModel from './components/VRMModel'
 
 import './App.css'
@@ -56,6 +56,7 @@ function numToRad(num: number | number[]): number {
 }
 
 function App() {
+  const defaultPosition: Position2D = {x: 0, y: 0}
   const defaultBones: SimpleBones = {
     "LeftShoulder": {x: 0.0, y: 0.0, z: 0.0},
     "LeftUpperLeg": {x: 0.0, y: 0.0, z: 0.0},
@@ -63,13 +64,35 @@ function App() {
     "RightShoulder": {x: 0.0, y: 0.0, z: 0.0},
     "RightUpperLeg": {x: 0.0, y: 0.0, z: 0.0}
   }
+
+  const [position, setPosition] = useState<Position2D>(defaultPosition)
   const [bones, setBones] = useState<SimpleBones>(defaultBones);
+
   return (
     <Stack spacing={3}>
       <Grid container spacing={3}>
+        <Grid item xs={6}>
+          <Slider
+            size="small"
+            defaultValue={0}
+            aria-label="Small"
+            valueLabelDisplay="auto"
+            onChange={(e,v) => setPosition( {x: numToRad(v), y: position.y} )}
+          />
+          position x
+        </Grid>
+        <Grid item xs={6}>
+          <Slider
+            size="small"
+            defaultValue={0}
+            aria-label="Small"
+            valueLabelDisplay="auto"
+            onChange={(e,v) => setPosition( {x: position.x, y: numToRad(v)} )}
+          />
+          position y
+        </Grid>
         <Grid item xs={4}>
           <Stack spacing={3}>
-            LeftShoulder
             <Slider
               size="small"
               defaultValue={100}
@@ -77,7 +100,7 @@ function App() {
               valueLabelDisplay="auto"
               onChange={(e,v) => setBones({...bones, "LeftShoulder": {x: 0.0, y: 0.0, z: numToRad(v)}})}
             />
-            LeftUpperLeg
+            LeftShoulder
             <Slider
               size="small"
               defaultValue={100}
@@ -85,11 +108,11 @@ function App() {
               valueLabelDisplay="auto"
               onChange={(e,v) => setBones({...bones, "LeftUpperLeg": {x: 0.0, y: 0.0, z: numToRad(v)}})}
             />
+            LeftUpperLeg
           </Stack>
         </Grid>
         <Grid item xs={4}>
           <Stack spacing={3}>
-            Neck
             <Slider
               size="small"
               defaultValue={0}
@@ -97,11 +120,11 @@ function App() {
               valueLabelDisplay="auto"
               onChange={(e,v) => setBones({...bones, "Neck": {x: 0.0, y: numToRad(v), z: 0.0}})}
             />
+            Neck
           </Stack>
         </Grid>
         <Grid item xs={4}>
           <Stack spacing={3}>
-            RightShoulder
             <Slider
               size="small"
               defaultValue={0}
@@ -109,7 +132,7 @@ function App() {
               valueLabelDisplay="auto"
               onChange={(e,v) => setBones({...bones, "RightShoulder": {x: 0.0, y: 0.0, z: numToRad(v)}})}
             />
-            RightUpperLeg
+            RightShoulder
             <Slider
               size="small"
               defaultValue={0}
@@ -117,12 +140,13 @@ function App() {
               valueLabelDisplay="auto"
               onChange={(e,v) => setBones({...bones, "RightUpperLeg": {x: 0.0, y: 0.0, z: numToRad(v)}})}
             />
+            RightUpperLeg
           </Stack>
         </Grid>
       </Grid>
       <Box sx={{ width:500, height: 500}}>
         <Canvas>
-          <VRMModel bones={bones} />
+          <VRMModel position={position} bones={bones} />
           <CameraControl />
           <directionalLight position={[1, 1, 1]} />
           <gridHelper />

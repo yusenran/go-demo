@@ -2,20 +2,18 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useFrame, useLoader, useThree } from 'react-three-fiber'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { VRM, VRMUtils, VRMSchema, GLTFNode } from '@pixiv/three-vrm'
-import { Object3D } from 'three'
 
-import {SimpleBones} from './SimpleBones'
-
+import {SimpleBones, Position2D} from './SimpleBones'
 
 interface VRMAssetProps {
   url: string
+  position: Position2D
   myBones: SimpleBones
 }
 
 type BoneStore = { [part: string]: GLTFNode | null | undefined };
 
-export default function VRMAsset({ url, myBones={
-  "LeftShoulder": {x: 0, y: 0, z: 0}
+export default function VRMAsset({ url, position , myBones={
 } }: VRMAssetProps) {
   const { scene, camera } = useThree()
   const gltf = useLoader(GLTFLoader, url)
@@ -49,10 +47,12 @@ export default function VRMAsset({ url, myBones={
   }
 
   useFrame( ({clock}, delta) => {
+    gltf.scene.position.set(position.x, 0, position.y)
     if(avatar.current) {
       avatar.current.update(delta)
     }
 
+    // TODO setPoseで書き直したい
     if(boneStore.Neck){
       boneStore.Neck.rotation.y = myBones['Neck'].y
     }
