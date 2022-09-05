@@ -30,7 +30,6 @@ export default function VRMAsset({ url, myBones={
       const boneNode = vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.Hips)
       boneNode?.rotateY(Math.PI)
 
-        
       const bones : BoneStore = {
         LeftShoulder: vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.LeftShoulder),
         LeftUpperLeg: vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.LeftUpperLeg),
@@ -55,27 +54,22 @@ export default function VRMAsset({ url, myBones={
     }
 
     if(boneStore.Neck){
-      // TODO：なぜかmyBonesでラップされている。。
       boneStore.Neck.rotation.y = myBones['Neck'].y
     }
 
     if(boneStore.LeftShoulder){
-      // TODO：なぜかmyBonesでラップされている。。
       boneStore.LeftShoulder.rotation.z = myBones['LeftShoulder'].z
     }
 
     if(boneStore.LeftUpperLeg){
-      // TODO：なぜかmyBonesでラップされている。。
       boneStore.LeftUpperLeg.rotation.z = myBones['LeftUpperLeg'].z
     }
 
     if(boneStore.RightShoulder){
-      // TODO：なぜかmyBonesでラップされている。。
       boneStore.RightShoulder.rotation.z = myBones['RightShoulder'].z
     }
 
     if(boneStore.RightUpperLeg){
-      // TODO：なぜかmyBonesでラップされている。。
       boneStore.RightUpperLeg.rotation.z = myBones['RightUpperLeg'].z
     }
 
