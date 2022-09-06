@@ -20,54 +20,20 @@ export interface VRMAssetProps {
 
 type BoneStore = { [part: string]: GLTFNode | null | undefined };
 
-export default function VRMAsset({ avatarProps, url, inRoom=false }: VRMAssetProps) {
-  const { scene, camera } = useThree()
-  const gltf = useLoader(GLTFLoader, url)
-  const avatar = useRef<VRM>()
-
-  // TODO 後で消す
-  const position = avatarProps.position
-  const myBones = avatarProps.bones
-
-  const [boneStore, setBones] = useState<BoneStore>({})
-
-  useEffect(() => {
-    VRMUtils.removeUnnecessaryJoints(gltf.scene)
-    VRM.from(gltf).then(vrm => {
-      // 初期描画で背中が映ってしまうので向きを変えてあげる
-      const boneNode = vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.Hips)
-      boneNode?.rotateY(Math.PI)
-
-      const bones : BoneStore = {
-        LeftShoulder: vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.LeftShoulder),
-        LeftUpperLeg: vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.LeftUpperLeg),
-        RightShoulder: vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.RightShoulder),
-        RightUpperLeg: vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.RightUpperLeg),
-        Neck: vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.Neck)
-      }
-
-      setBones(bones)
-
-    })
-  }, [ scene, gltf, camera])
-
-  if (scene === null) {
-    console.log('scene is null')
-    return null
+function vrmToBoneStore(vrm: VRM): BoneStore {
+  const bones : BoneStore = {
+    LeftShoulder: vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.LeftShoulder),
+    LeftUpperLeg: vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.LeftUpperLeg),
+    RightShoulder: vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.RightShoulder),
+    RightUpperLeg: vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.RightUpperLeg),
+    Neck: vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.Neck)
   }
+  return bones
+}
 
-  useFrame( ({clock}, delta) => {
-    gltf.scene.position.set(position.x, 0, position.y)
-
-    if( inRoom ) {
-      syncRoom(avatarProps)
-    }
-
-    if(avatar.current) {
-      avatar.current.update(delta)
-    }
-
-    // TODO setPoseで書き直したい
+function updateBones( boneStore: BoneStore, avatarProps: VRMAvatarProps) {
+    // TODO 副作用が隠蔽されていてよろしくない。setPoseで書き直したい
+    const myBones = avatarProps.bones
     if(boneStore.Neck){
       boneStore.Neck.rotation.y = myBones['Neck'].y
     }
@@ -87,8 +53,77 @@ export default function VRMAsset({ avatarProps, url, inRoom=false }: VRMAssetPro
     if(boneStore.RightUpperLeg){
       boneStore.RightUpperLeg.rotation.z = myBones['RightUpperLeg'].z
     }
+}
 
+export default function VRMAsset({ avatarProps, url, inRoom=false }: VRMAssetProps) {
+  const { scene, camera } = useThree()
+  const gltf = useLoader(GLTFLoader, url)
+  const gltf_other = useLoader(GLTFLoader, './black.vrm')
+  const avatar = useRef<VRM>()
+
+  // TODO 後で消す
+  const position = avatarProps.position
+
+  const [boneStore, setBones] = useState<BoneStore>({})
+
+  const [otherAvators, setOtherAvatars] = useState<{[id:string]:VRMAvatarProps}>({})
+  const [otherBoneStore, setOthersBones] = useState<BoneStore>({})
+
+  useEffect(() => {
+    VRMUtils.removeUnnecessaryJoints(gltf.scene)
+
+    VRM.from(gltf).then(vrm => {
+      // 初期描画で背中が映ってしまうので向きを変えてあげる
+      const boneNode = vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.Hips)
+      boneNode?.rotateY(Math.PI)
+      setBones(vrmToBoneStore(vrm))
+    })
+
+    VRM.from(gltf_other).then(vrm => {
+      // 初期描画で背中が映ってしまうので向きを変えてあげる
+      const boneNode = vrm.humanoid?.getBoneNode(VRMSchema.HumanoidBoneName.Hips)
+      boneNode?.rotateY(Math.PI)
+      setOthersBones(vrmToBoneStore(vrm))
+    })
+
+  }, [ scene, gltf, camera])
+
+  if (scene === null) {
+    console.log('scene is null')
+    return null
+  }
+
+  useFrame( ({clock}, delta) => {
+    gltf.scene.position.set(position.x, 0, position.y)
+
+    if( inRoom ) {
+      const f = async () => {
+        var avatars = await syncRoom(avatarProps)
+        delete avatars[avatarProps.name]
+        setOtherAvatars(avatars)
+      }
+      f()
+      if( Object.keys(otherAvators).length > 0 ) {
+        Object.keys(otherAvators).forEach( key => {
+          gltf_other.scene.position.set(otherAvators[key].position.x, 0, otherAvators[key].position.y)
+          updateBones(otherBoneStore, otherAvators[key])
+        })
+      }
+    }
+
+    if(avatar.current) {
+      avatar.current.update(delta)
+    }
+
+    updateBones(boneStore, avatarProps)
   })
 
-  return <primitive object={gltf.scene} dispose={null} />
+  if( inRoom ) {
+    return <>
+      <primitive object={gltf.scene} dispose={null} />
+      <primitive object={gltf_other.scene} dispose={null} />
+    </>
+  } else {
+    return <primitive object={gltf.scene} dispose={null} />
+  }
 }

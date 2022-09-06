@@ -32,6 +32,7 @@ function App() {
   const [isInRoom, setIsInRoom] = useState<boolean>(false)
   const [roomButton, setRoomButton] = useState<string>("Join Room");
 
+  const [userName, setUserName] = useState<string>("")
   const [position, setPosition] = useState<Position2D>(defaultPosition)
   const [bones, setBones] = useState<SimpleBones>(defaultBones);
 
@@ -44,6 +45,7 @@ function App() {
             label="Your name"
             variant="outlined"
             disabled={isInRoom}
+            onChange={(e) => {setUserName(e.target.value)}}
           />
         </Grid>
         <Grid item xs={4}>
@@ -136,7 +138,7 @@ function App() {
       <Box sx={{ width:1000, height: 500}}>
         <Canvas>
           <VRMModel
-            avatarProps={ { name:"a", position:position, bones: bones} }
+            avatarProps={ { name:userName, position:position, bones: bones} }
             inRoom={isInRoom}
             url='./white_w_glass.vrm'
           />
