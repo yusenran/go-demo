@@ -33,6 +33,7 @@ services:
     tty: true
     volumes:
       - ./backend:/app/backend:cached
+    restart: always
   nginx:
     build: ./containers/nginx
     container_name: nginx
