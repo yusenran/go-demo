@@ -20,8 +20,8 @@ var hello *Hello = &Hello{
 }
 
 func main() {
-	// http.HandleFunc("/", echoHello)
 	http.HandleFunc("/hello", helloJson)
+	http.HandleFunc("/avatar", syncAvatar)
 	http.ListenAndServe(":3000", nil)
 }
 
@@ -47,9 +47,4 @@ func helloJson(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		fmt.Fprintf(w, "unsupported")
 	}
-}
-
-func echoHello(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8000")
-	fmt.Fprintf(w, "<h1>Hello World</h1>")
 }
