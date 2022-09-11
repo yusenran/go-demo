@@ -21,6 +21,6 @@ export async function syncRoom(avatar: VRMAvatarProps) : Promise< {[id:string]:V
   } catch (error) {
     console.log("post error")
     console.log(error)
-    return []
+    return {}
   }
 }
