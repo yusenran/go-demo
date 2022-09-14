@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 )
 
 // 自動生成
@@ -45,6 +46,10 @@ type VRMAvatar struct {
 	} `json:"bones"`
 }
 
+var ClientMutex struct {
+  sync.Mutex
+}
+
 var avatars map[string]*VRMAvatar = map[string]*VRMAvatar{}
 
 func syncAvatar(w http.ResponseWriter, r *http.Request) {
@@ -58,8 +63,10 @@ func syncAvatar(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		ClientMutex.Lock()  // ロック
 		avatars[p.Name] = p
 		j, _ := json.Marshal(avatars)
+		ClientMutex.Unlock() // アンロック
 		w.Write(j)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)

@@ -13,7 +13,7 @@ export async function syncRoom(avatar: VRMAvatarProps) : Promise< {[id:string]:V
     }
     // console.log(JSON.stringify( approximateAvatar(avatar) ))
     const response = await axios.post<{[id:string]:VRMAvatarProps}>(
-      "http://localhost:3000/avatar"
+      "http://localhost:8080/go-demo/avatar"
       , JSON.stringify( approximateAvatar(avatar) )
       , config )
     // console.log(response)
@@ -21,6 +21,6 @@ export async function syncRoom(avatar: VRMAvatarProps) : Promise< {[id:string]:V
   } catch (error) {
     console.log("post error")
     console.log(error)
-    return []
+    return {}
   }
 }
