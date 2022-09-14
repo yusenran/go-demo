@@ -14,8 +14,8 @@ services:
     ports:
       # - 3000:3000
       - 8000:8000
-    # expose:
-    #   - 3000
+    expose:
+      - 8000
     command: sh -c "cd /app/frontend && yarn dev"
     depends_on:
       - backend
@@ -27,9 +27,9 @@ services:
     working_dir: /app
     ports:
       - 3000:3000
-      # - 8000:8000
+    #   - 8000:8000
     # expose:
-    #   - 8000
+    #   - 3000
     tty: true
     volumes:
       - ./backend:/app/backend:cached
@@ -42,3 +42,6 @@ services:
     volumes:
       - ./containers/nginx/nginx.conf:/etc/nginx/nginx.conf:cached
       - ./logs/nginx:/var/log/nginx:cached
+    depends_on:
+      - frontend
+      - backend

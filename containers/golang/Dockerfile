@@ -7,3 +7,4 @@ WORKDIR /app/backend
 
 RUN go build
 CMD [ "/app/backend/go-demo-server" ]
+# CMD [ "go run -race main.go" ]

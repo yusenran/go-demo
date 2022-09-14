@@ -20,9 +20,15 @@ var hello *Hello = &Hello{
 }
 
 func main() {
-	http.HandleFunc("/hello", helloJson)
-	http.HandleFunc("/avatar", syncAvatar)
+	// http.HandleFunc("/", echoHello)
+	// http.HandleFunc("/echo", echoHello)
+	// http.HandleFunc("/go-demo/hello", helloJson)
+	http.HandleFunc("/go-demo/avatar", syncAvatar)
 	http.ListenAndServe(":3000", nil)
+}
+
+func echoHello(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "<h1>Hello World</h1>")
 }
 
 func helloJson(w http.ResponseWriter, r *http.Request) {
